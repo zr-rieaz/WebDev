@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useBookState } from './hooks/useBookState';
 import { theoryUnits } from './data/theoryUnits';
 import { practicalExperiments } from './data/practicalExperiments';
-import { CodeSnippet } from './types/curriculum';
+import { CodeSnippet, TrackType } from './types/curriculum';
 import { TopNavbar } from './components/TopNavbar';
 import { NavigationDrawer } from './components/NavigationDrawer';
 import { TheoryUnitView } from './components/TheoryUnitView';
@@ -17,8 +17,7 @@ export default function App() {
     hasResumed,
     setActiveTrack,
     setActiveChapter,
-    toggleBookmark,
-    setTheme
+    toggleBookmark
   } = useBookState();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -46,10 +45,10 @@ export default function App() {
         setIsDrawerOpen((prev) => !prev);
       } else if (e.key === 'e' || e.key === 'E') {
         // Quick shortcut 'e' to open code editor
-        handleOpenStudioEditor();
+        handleToggleStudioEditor();
       } else if (e.key === 'o' || e.key === 'O') {
         // Quick shortcut 'o' to open output view
-        handleOpenStudioOutput();
+        handleToggleStudioOutput();
       } else if (e.key === 'Escape') {
         setIsDrawerOpen(false);
         setIsStudioOpen(false);
@@ -57,18 +56,31 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isStudioOpen, studioMode]);
 
-  const handleOpenStudioEditor = () => {
-    setStudioSnippet(null);
-    setStudioMode('editor');
-    setIsStudioOpen(true);
+  const handleToggleStudioEditor = () => {
+    if (isStudioOpen && studioMode === 'editor') {
+      setIsStudioOpen(false);
+    } else {
+      setStudioSnippet(null);
+      setStudioMode('editor');
+      setIsStudioOpen(true);
+    }
   };
 
-  const handleOpenStudioOutput = () => {
-    setStudioSnippet(null);
-    setStudioMode('output');
-    setIsStudioOpen(true);
+  const handleToggleStudioOutput = () => {
+    if (isStudioOpen && studioMode === 'output') {
+      setIsStudioOpen(false);
+    } else {
+      setStudioSnippet(null);
+      setStudioMode('output');
+      setIsStudioOpen(true);
+    }
+  };
+
+  const handleTrackChange = (track: TrackType) => {
+    setActiveTrack(track);
+    setIsStudioOpen(false);
   };
 
   const handleOpenStudioWithSnippet = (snippet: CodeSnippet) => {
@@ -99,18 +111,18 @@ export default function App() {
     state.activeTrack === 'theory' ? activeTheoryUnit.code : activePracticalExp.code;
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 theme-${state.theme}`}>
-      {/* Top Application Bar with Full-Screen Editor & Output Icons */}
+    <div className="min-h-screen bg-slate-950 text-slate-100 theme-dark">
+      {/* Top Application Bar with Code Editor & Output Buttons */}
       <TopNavbar
         activeTrack={state.activeTrack}
-        onTrackChange={setActiveTrack}
+        onTrackChange={handleTrackChange}
         activeChapterTitle={currentChapterTitle}
         activeChapterCode={currentChapterCode}
         onOpenDrawer={() => setIsDrawerOpen(true)}
-        onOpenStudioEditor={handleOpenStudioEditor}
-        onOpenStudioOutput={handleOpenStudioOutput}
-        theme={state.theme}
-        onChangeTheme={setTheme}
+        onOpenStudioEditor={handleToggleStudioEditor}
+        onOpenStudioOutput={handleToggleStudioOutput}
+        isStudioOpen={isStudioOpen}
+        studioMode={studioMode}
       />
 
       {/* Main Educational Reader Canvas */}
@@ -143,6 +155,7 @@ export default function App() {
         activeChapterId={state.activeChapterId}
         onSelectChapter={(id, subTopicId) => {
           setActiveChapter(id);
+          setIsStudioOpen(false);
           if (subTopicId) {
             setTimeout(() => {
               const el = document.getElementById(`topic-${subTopicId}`);
@@ -155,12 +168,13 @@ export default function App() {
         bookmarks={state.bookmarks}
       />
 
-      {/* Full-Screen Code Studio (Editor & Live Output Sandbox) */}
+      {/* Code Studio (Editor & Live Output Sandbox right beneath TopNavbar) */}
       <FullScreenStudio
         isOpen={isStudioOpen}
         onClose={() => setIsStudioOpen(false)}
         initialMode={studioMode}
         initialSnippet={studioSnippet}
+        onModeChange={setStudioMode}
       />
 
       {/* Offline Status Badge */}

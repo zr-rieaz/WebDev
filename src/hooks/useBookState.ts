@@ -4,7 +4,6 @@ import { TrackType } from '../types/curriculum';
 interface BookState {
   activeTrack: TrackType;
   activeChapterId: string;
-  theme: 'light' | 'sepia' | 'dark';
   bookmarks: string[];
   completedQuizzes: Record<string, boolean>;
   notes: Record<string, string>;
@@ -16,7 +15,6 @@ const SCROLL_STORAGE_KEY = 'bteb_webdev1_scroll_map';
 const DEFAULT_STATE: BookState = {
   activeTrack: 'theory',
   activeChapterId: 'theory-1',
-  theme: 'dark',
   bookmarks: [],
   completedQuizzes: {},
   notes: {}
@@ -134,10 +132,6 @@ export function useBookState() {
     });
   };
 
-  const setTheme = (theme: 'light' | 'sepia' | 'dark') => {
-    setState((prev) => ({ ...prev, theme }));
-  };
-
   const toggleQuizAnswer = (quizId: string) => {
     setState((prev) => ({
       ...prev,
@@ -164,7 +158,6 @@ export function useBookState() {
     setActiveTrack,
     setActiveChapter,
     toggleBookmark,
-    setTheme,
     toggleQuizAnswer,
     saveNote
   };

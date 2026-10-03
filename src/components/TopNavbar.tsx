@@ -3,15 +3,13 @@ import {
   Menu,
   BookOpen,
   Wrench,
-  Sun,
-  Moon,
-  Coffee,
   Maximize2,
   Minimize2,
   FileCode2,
   MonitorPlay
 } from 'lucide-react';
 import { TrackType } from '../types/curriculum';
+import { StudioViewMode } from './FullScreenStudio';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface TopNavbarProps {
@@ -22,8 +20,8 @@ interface TopNavbarProps {
   onOpenDrawer: () => void;
   onOpenStudioEditor: () => void;
   onOpenStudioOutput: () => void;
-  theme: 'light' | 'sepia' | 'dark';
-  onChangeTheme: (theme: 'light' | 'sepia' | 'dark') => void;
+  isStudioOpen: boolean;
+  studioMode: StudioViewMode;
 }
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({
@@ -34,8 +32,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   onOpenDrawer,
   onOpenStudioEditor,
   onOpenStudioOutput,
-  theme,
-  onChangeTheme
+  isStudioOpen,
+  studioMode
 }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -60,8 +58,11 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
     }
   };
 
+  const isEditorActive = isStudioOpen && studioMode === 'editor';
+  const isOutputActive = isStudioOpen && studioMode === 'output';
+
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/95 border-b border-slate-800 text-slate-100 backdrop-blur-md transition-colors">
+    <header className="sticky top-0 z-40 bg-slate-900/95 border-b border-slate-800 text-slate-100 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2">
         {/* Left: Branding & Subject Code */}
         <div className="flex items-center gap-2.5 min-w-0">
@@ -78,8 +79,16 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-slate-400 truncate">
-              <span className="font-semibold text-sky-400 font-mono">{activeChapterCode}:</span>
-              <span className="truncate">{activeChapterTitle}</span>
+              <span className="font-semibold text-sky-400 font-mono">
+                {isStudioOpen ? 'STUDIO' : activeChapterCode}:
+              </span>
+              <span className="truncate">
+                {isStudioOpen
+                  ? studioMode === 'editor'
+                    ? 'HTML, CSS & JavaScript Code Editor'
+                    : 'Live Output Sandbox'
+                  : activeChapterTitle}
+              </span>
             </div>
           </div>
         </div>
@@ -89,7 +98,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           <button
             onClick={() => onTrackChange('theory')}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition ${
-              activeTrack === 'theory'
+              activeTrack === 'theory' && !isStudioOpen
                 ? 'bg-sky-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -100,7 +109,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           <button
             onClick={() => onTrackChange('practical')}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition ${
-              activeTrack === 'practical'
+              activeTrack === 'practical' && !isStudioOpen
                 ? 'bg-indigo-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -110,52 +119,35 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           </button>
         </div>
 
-        {/* Right Controls: Full-Screen Code Tools, Theme, Drawer Button */}
+        {/* Right Controls: Code Studio Buttons, Fullscreen, Menu */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* 1. Full-Screen Code Editor Button */}
+          {/* 1. Code Editor Button */}
           <button
             onClick={onOpenStudioEditor}
-            className="p-1.5 rounded-lg bg-sky-950 hover:bg-sky-900 border border-sky-800/80 text-sky-400 hover:text-sky-300 transition text-xs font-bold flex items-center gap-1 shadow-xs"
-            title="Full-Screen Code Editor (HTML / CSS / JS)"
+            className={`p-1.5 px-2.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 shadow-xs transition ${
+              isEditorActive
+                ? 'bg-sky-600 text-white border-sky-400 shadow-md ring-2 ring-sky-500/30'
+                : 'bg-sky-950 hover:bg-sky-900 border-sky-800/80 text-sky-400 hover:text-sky-300'
+            }`}
+            title={isEditorActive ? 'Close Editor (Back to Book)' : 'Open Code Editor (HTML/CSS/JS)'}
           >
-            <FileCode2 className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden sm:inline text-[11px] font-mono">Editor</span>
+            <FileCode2 className={`w-3.5 h-3.5 ${isEditorActive ? 'text-white' : 'text-sky-400'}`} />
+            <span className="text-[11px] font-mono">Editor</span>
           </button>
 
-          {/* 2. Full-Screen Live Output / Runner Button */}
+          {/* 2. Live Output / Runner Button */}
           <button
             onClick={onOpenStudioOutput}
-            className="p-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 border border-emerald-800/80 text-emerald-400 hover:text-emerald-300 transition text-xs font-bold flex items-center gap-1 shadow-xs"
-            title="Full-Screen Live Output / Run View"
+            className={`p-1.5 px-2.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 shadow-xs transition ${
+              isOutputActive
+                ? 'bg-emerald-600 text-white border-emerald-400 shadow-md ring-2 ring-emerald-500/30'
+                : 'bg-emerald-950 hover:bg-emerald-900 border-emerald-800/80 text-emerald-400 hover:text-emerald-300'
+            }`}
+            title={isOutputActive ? 'Close Output (Back to Book)' : 'Open Live Output Sandbox'}
           >
-            <MonitorPlay className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline text-[11px] font-mono">Output</span>
+            <MonitorPlay className={`w-3.5 h-3.5 ${isOutputActive ? 'text-white' : 'text-emerald-400'}`} />
+            <span className="text-[11px] font-mono">Output</span>
           </button>
-
-          {/* Theme Modes: Light, Sepia, Dark */}
-          <div className="hidden sm:flex items-center bg-slate-950 rounded-lg p-0.5 border border-slate-800">
-            <button
-              onClick={() => onChangeTheme('light')}
-              className={`p-1 rounded ${theme === 'light' ? 'bg-slate-700 text-amber-300' : 'text-slate-400 hover:text-slate-200'}`}
-              title="Light Mode"
-            >
-              <Sun className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => onChangeTheme('sepia')}
-              className={`p-1 rounded ${theme === 'sepia' ? 'bg-amber-900/60 text-amber-300' : 'text-slate-400 hover:text-slate-200'}`}
-              title="Warm Sepia Reading Mode"
-            >
-              <Coffee className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => onChangeTheme('dark')}
-              className={`p-1 rounded ${theme === 'dark' ? 'bg-slate-700 text-sky-400' : 'text-slate-400 hover:text-slate-200'}`}
-              title="Dark Mode"
-            >
-              <Moon className="w-3.5 h-3.5" />
-            </button>
-          </div>
 
           {/* Fullscreen Button */}
           <button
