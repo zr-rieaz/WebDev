@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+    <linearGradient id="codeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  
+  <!-- Subtle grid pattern overlay -->
+  <circle cx="256" cy="256" r="180" stroke="#ffffff" stroke-opacity="0.08" stroke-width="40" fill="none" />
+  
+  <!-- Central Book / Code Screen Card -->
+  <g filter="url(#shadow)">
+    <rect x="96" y="96" width="320" height="320" rx="32" fill="#0f172a" stroke="#38bdf8" stroke-width="6" />
+    
+    <!-- Window controls -->
+    <circle cx="136" cy="136" r="8" fill="#ef4444" />
+    <circle cx="160" cy="136" r="8" fill="#f59e0b" />
+    <circle cx="184" cy="136" r="8" fill="#10b981" />
+    
+    <!-- Code Brackets & Slash: </1> -->
+    <path d="M190 200 L140 256 L190 312" stroke="url(#codeGrad)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M280 180 L232 332" stroke="#e0f2fe" stroke-width="20" stroke-linecap="round" />
+    <path d="M322 200 L372 256 L322 312" stroke="url(#codeGrad)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Badge / Subject Code indicator -->
+    <rect x="186" y="356" width="140" height="28" rx="8" fill="#0284c7" />
+    <text x="256" y="375" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="1.5">CODE 28544</text>
+  </g>
+</svg>
